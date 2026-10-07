@@ -504,6 +504,7 @@ async function doLogin() {
     });
 
     if (error) {
+        alert("Gagal Login: " + error.message);
         err.innerText = "Email atau Password salah!";
         err.classList.remove('hidden');
     } else {
