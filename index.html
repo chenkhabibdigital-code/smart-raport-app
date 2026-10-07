@@ -493,32 +493,41 @@ const supabase = supabase.createClient(supabaseUrl, supabaseKey);
         // ================= SISTEM LOGIN ASLI =================
         // Tambahkan kata "async" di depan function karena kita akan menghubungi internet
 async function doLogin() {
-    const u = document.getElementById('loginUsername').value; // Sekarang isi dengan Email
+    const u = document.getElementById('loginUsername').value; 
     const p = document.getElementById('loginPassword').value;
     const err = document.getElementById('loginError');
 
-    // Minta Supabase mencocokkan email dan password
+    // 1. Meminta Supabase mencocokkan email dan password
     const { data, error } = await supabase.auth.signInWithPassword({
         email: u,
         password: p,
     });
 
     if (error) {
-        // Jika salah, tampilkan pesan error bawaan Anda
         err.innerText = "Email atau Password salah!";
         err.classList.remove('hidden');
     } else {
-        // Jika benar, masuk ke aplikasi
         err.classList.add('hidden');
         document.getElementById('loginUsername').value = '';
         document.getElementById('loginPassword').value = '';
         
-        // Catatan: Anda perlu menyesuaikan setupSession untuk membaca role dari database nantinya
-        // Untuk saat ini, kita gunakan data.user bawaan Supabase
-        setupSession(data.user); 
+        // --- PERBAIKAN DI SINI ---
+        // Karena Supabase belum punya data nama & hak akses, kita buatkan data "pura-pura" 
+        // agar kode bawaan (setupSession) tidak error dan Anda bisa masuk ke dasbor.
+        
+        let userAktif = data.user;
+        userAktif.nama = "Admin Sekolah (Supabase)";
+        userAktif.akses = { 
+            admin: true,          // Beri akses penuh sebagai admin
+            guruMapel: null, 
+            waliKelas: null, 
+            fasilitator: null 
+        };
+        
+        // Lanjutkan masuk ke aplikasi
+        setupSession(userAktif); 
     }
 }
-
         function logout() {
             currentUser = null;
             document.getElementById('mainApp').classList.add('hidden');
